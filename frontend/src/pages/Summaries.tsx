@@ -1,6 +1,18 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RefreshCw, AlertCircle, Newspaper, Loader2, SparkleIcon, FilterIcon, SlidersHorizontal } from 'lucide-react';
+import { 
+  RefreshCw, 
+  AlertCircle, 
+  Newspaper, 
+  Loader2, 
+  SparkleIcon, 
+  FilterIcon, 
+  SlidersHorizontal,
+  CalendarIcon,
+  ListFilter,
+  TrendingUp,
+  ArrowDownAZ
+} from 'lucide-react';
 import SummaryCard, { type Article } from '../components/SummaryCard';
 
 const LoadingState = () => (
@@ -132,6 +144,41 @@ const Summaries = () => {
   const [error, setError] = useState<string | null>(null);
   const [pipelineRunning, setPipelineRunning] = useState(false);
   const [pipelineStatus, setPipelineStatus] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'source'>('newest');
+  const [filterCategory, setFilterCategory] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Get unique categories from articles
+  const categories = React.useMemo(() => {
+    const topics = ['Technology', 'Business', 'Politics', 'Health', 'Science', 'Entertainment'];
+    return topics.sort();
+  }, []);
+
+  // Filtered and sorted articles
+  const displayedArticles = React.useMemo(() => {
+    let result = [...articles];
+    
+    // Apply category filtering
+    if (filterCategory) {
+      result = result.filter(article => {
+        // Simple hash function to deterministically assign a category for demo
+        const hash = article.title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        const category = categories[hash % categories.length];
+        return category === filterCategory;
+      });
+    }
+    
+    // Apply sorting
+    if (sortBy === 'newest') {
+      result.sort((a, b) => new Date(b.published).getTime() - new Date(a.published).getTime());
+    } else if (sortBy === 'oldest') {
+      result.sort((a, b) => new Date(a.published).getTime() - new Date(b.published).getTime());
+    } else if (sortBy === 'source') {
+      result.sort((a, b) => a.source.localeCompare(b.source));
+    }
+    
+    return result;
+  }, [articles, sortBy, filterCategory, categories]);
 
   const fetchArticles = useCallback(async () => {
     setLoading(true);
@@ -140,10 +187,7 @@ const Summaries = () => {
       const res = await fetch('/api/graph/');
       if (!res.ok) throw new Error('Failed to fetch articles');
       const data = await res.json();
-      const sorted = [...data.data].sort(
-        (a: Article, b: Article) => new Date(b.published).getTime() - new Date(a.published).getTime()
-      );
-      setArticles(sorted);
+      setArticles(data.data || []);
     } catch (err: any) {
       setError(err.message || 'Something went wrong');
     } finally {
@@ -177,7 +221,7 @@ const Summaries = () => {
   }, [fetchArticles]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 max-w-screen-2xl mx-auto">
       {/* Header Section */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
@@ -185,9 +229,7 @@ const Summaries = () => {
         transition={{ duration: 0.5 }}
         className="mb-8"
       >
-        <div className="flex items-center justify-between mb-6">
-    
-          
+        <div className="flex items-center justify-center mb-6">
           <div className="flex items-center gap-3">
             <motion.button
               onClick={runPipeline}
@@ -269,6 +311,113 @@ const Summaries = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        
+        {/* Filter and Sort Controls */}
+        {!loading && !error && articles.length > 0 && (
+          <div className="mt-6">
+            <div className="flex flex-wrap items-center justify-between">
+              <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="btn-secondary py-2 flex items-center gap-1.5 bg-white dark:bg-gray-800 shadow-sm"
+                >
+                  <FilterIcon className="h-4 w-4" />
+                  <span>Filters</span>
+                  {filterCategory && <span className="ml-1 w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>}
+                </button>
+                
+                <div className="hidden sm:flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <span className="px-2">|</span>
+                  <span>{displayedArticles.length} stories</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <div className="text-sm text-gray-500 dark:text-gray-400 mr-1 whitespace-nowrap">Sort by:</div>
+                <div className="flex bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
+                  <button
+                    onClick={() => setSortBy('newest')}
+                    className={`px-3 py-1.5 text-sm flex items-center gap-1 ${
+                      sortBy === 'newest' 
+                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium' 
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    }`}
+                  >
+                    <TrendingUp className="h-3.5 w-3.5" />
+                    <span>Newest</span>
+                  </button>
+                  <button
+                    onClick={() => setSortBy('oldest')}
+                    className={`px-3 py-1.5 text-sm flex items-center gap-1 ${
+                      sortBy === 'oldest' 
+                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium' 
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    }`}
+                  >
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    <span>Oldest</span>
+                  </button>
+                  <button
+                    onClick={() => setSortBy('source')}
+                    className={`px-3 py-1.5 text-sm flex items-center gap-1 ${
+                      sortBy === 'source' 
+                        ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium' 
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                    }`}
+                  >
+                    <ArrowDownAZ className="h-3.5 w-3.5" />
+                    <span>Source</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Category filters */}
+            <AnimatePresence>
+              {showFilters && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm mt-3 p-4 rounded-xl shadow-soft border border-gray-100/80 dark:border-gray-700/50">
+                    <div className="flex items-center mb-3">
+                      <ListFilter className="h-4 w-4 text-primary-500 mr-2" />
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter by Category</h3>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setFilterCategory(null)}
+                        className={`px-3 py-1.5 text-xs rounded-full flex items-center ${
+                          filterCategory === null
+                            ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 font-medium'
+                            : 'bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        }`}
+                      >
+                        All
+                      </button>
+                      {categories.map(category => (
+                        <button
+                          key={category}
+                          onClick={() => setFilterCategory(category)}
+                          className={`px-3 py-1.5 text-xs rounded-full flex items-center ${
+                            filterCategory === category
+                              ? 'bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 font-medium'
+                              : 'bg-gray-100 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                          }`}
+                        >
+                          {category}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
       </motion.div>
 
       {/* Content Area */}
@@ -278,46 +427,43 @@ const Summaries = () => {
         {!loading && !error && !articles.length && <NoDataState key="no-data" />}
         
         {!loading && !error && articles.length > 0 && (
-          <div className="mt-10">
+          <div className="mt-8">
             <motion.div
               key="content"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="grid gap-6 md:gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              className="grid gap-6 sm:gap-8 md:gap-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 auto-rows-fr"
             >
-              {articles.map((article, index) => (
-                <motion.div key={article.url || index} variants={itemVariants}>
-                  <SummaryCard article={article} />
-                </motion.div>
-              ))}
+              {displayedArticles.length > 0 ? (
+                displayedArticles.map((article, index) => (
+                  <motion.div 
+                    key={article.url || index} 
+                    variants={itemVariants}
+                    className="h-full flex" // Added to ensure equal height cards
+                  >
+                    <SummaryCard article={article} />
+                  </motion.div>
+                ))
+              ) : (
+                <div className="col-span-3 py-16 text-center">
+                  <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center mx-auto mb-4">
+                    <FilterIcon className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No matching articles</h3>
+                  <p className="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
+                    No articles match your current filter criteria. Try adjusting your filters to see more results.
+                  </p>
+                  <button 
+                    onClick={() => setFilterCategory(null)} 
+                    className="mt-4 btn-primary py-2"
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              )}
             </motion.div>
             
-            {/* Pagination UI placeholder */}
-            <div className="mt-12 flex justify-center">
-              <div className="flex items-center gap-2">
-                <button className="btn-outline py-1.5 px-3">
-                  <span>Previous</span>
-                </button>
-                <div className="flex items-center gap-1">
-                  {[1, 2, 3].map((page) => (
-                    <button 
-                      key={page}
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
-                        page === 1 
-                          ? 'bg-primary-500 text-white' 
-                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
-                </div>
-                <button className="btn-outline py-1.5 px-3">
-                  <span>Next</span>
-                </button>
-              </div>
-            </div>
           </div>
         )}
       </AnimatePresence>
