@@ -28,8 +28,8 @@ Objective Newsfeed is an open-source platform designed to aggregate, analyze, an
 1. **Clone the Repository**
 
 ```bash
-git clone https://github.com/yourusername/objective-newsfeed.git
-cd objective-newsfeed
+git clone https://github.com/kliewerdaniel/obj07.git
+cd obj07
 ```
 
 2. **Create and Activate a Virtual Environment** (Optional but Recommended)
@@ -152,9 +152,6 @@ The application currently includes sources from:
 - **Oceania**: Sydney Morning Herald, Australian Broadcasting Corporation
 - **International Organizations**: UN News, Global Voices
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
