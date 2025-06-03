@@ -1,55 +1,131 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import './navigation-fix.css'; // Import a custom CSS file for navigation fixes
+import './nav-styles.css'; // Import the new navigation styles
 import { Outlet, Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Newspaper, Settings, Radio, Moon, Sun, ChevronRight, BarChart2 } from 'lucide-react';
 
 const NAV_ITEMS = [
-  { path: '/Summaries', label: 'News', icon: '📰' },
-  { path: '/manage-feeds', label: 'Sources', icon: '⚙️' },
-  { path: '/news-broadcast', label: 'Broadcast', icon: '🎙️' } // Add the broadcast link
+  { path: '/summaries', label: 'News', icon: Newspaper },
+  { path: '/manage-feeds', label: 'Sources', icon: Settings },
+  { path: '/news-broadcast', label: 'Broadcast', icon: Radio },
 ];
 
 export default function Layout() {
   const location = useLocation();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches || 
+        document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50">
-        <nav className="max-w-5xl mx-auto px-4">
-          <div className="flex h-16 items-center justify-between">
-         
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 pattern-bg">
+      <motion.header 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="glass sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-700/30 backdrop-blur-lg shadow-soft-sm"
+      >
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col">
+            {/* Logo Section */}
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between">
+                <motion.div 
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.3 }}
+                  className="flex items-center gap-3"
+                >
+                  <div className="relative">
 
-            {/* Navigation */}
-            <div className="flex items-center">
-              <div className="flex items-center bg-gray-100/50 dark:bg-gray-700/50 rounded-full p-1 backdrop-blur-sm">
-                {NAV_ITEMS.map(({ path, label }) => {
-                  const isActive = location.pathname === path;
-                  return (
-                    <Link
-                      key={path}
-                      to={path}
-                      className={`relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ease-out
-                        ${isActive
-                          ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-lg transform scale-105'
-                          : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white hover:scale-102'
-                        }`}
-                    >
-                      <span>{label}</span>
-                      {isActive && (
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 -z-10" />
-                      )}
-                    </Link>
-                  );
-                })}
+                    <motion.div 
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        opacity: [0.7, 0.4, 0.7]
+                      }}
+                      transition={{ 
+                        duration: 3, 
+                        repeat: Infinity,
+                        repeatType: "reverse"
+                      }}
+                      className="absolute -inset-1.5 bg-primary-500/20 rounded-xl blur-md -z-10"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-secondary-500 animate-gradient-shift">Objective</span> Newsfeed
+                    </h1>
+                  </div>
+                </motion.div>
+                
+                
               </div>
             </div>
-          </div>
-        </nav>
-      </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
-        <div className="animate-in fade-in duration-500">
-          <Outlet />
+            {/* Navigation Bar */}
+            <nav className="objective-nav">
+              <div className="px-4 py-3 flex justify-center">
+                <div className="nav-links-container">
+                  {NAV_ITEMS.map(({ path, label, icon: Icon }, index) => {
+                    const isActive = location.pathname === path;
+                    return (
+                      <Link
+                        key={path}
+                        to={path}
+                        className={isActive ? 'active-nav-link' : ''}
+                        aria-current={isActive ? 'page' : undefined}
+                      >
+                        <Icon />
+                        <span>{label}</span>
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeIndicator"
+                            className="active-indicator"
+                            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                          />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </nav>
+          </div>
         </div>
+      </motion.header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="animate-fade-in"
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </main>
+      
+     
     </div>
   );
 }

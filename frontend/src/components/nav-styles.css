@@ -1,0 +1,106 @@
+/* Navigation bar styling */
+.objective-nav {
+  background-color: rgba(255, 255, 255, 0.85); /* lighter background */
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(229, 231, 235, 0.5);
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0.25rem 0;
+}
+
+.dark .objective-nav {
+  background-color: rgba(31, 41, 55, 0.85); /* adjusted for better contrast */
+  border-top: 1px solid rgba(55, 65, 81, 0.3);
+  border-bottom: 1px solid rgba(55, 65, 81, 0.3);
+}
+
+.nav-links-container {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  list-style: none !important;
+  padding: 0;
+  margin: 0;
+}
+
+/* Navigation link styling */
+.nav-links-container a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+  text-decoration: none;
+  list-style: none !important;
+  color: rgb(55, 65, 81); /* gray-700 */
+  margin: 0 0.125rem;
+  letter-spacing: 0.01em;
+}
+
+.dark .nav-links-container a {
+  color: rgb(229, 231, 235); /* lightened for better contrast */
+}
+
+/* Active link styling */
+.nav-links-container a.active-nav-link {
+  background-color: white;
+  color: rgb(79, 70, 229) !important; /* primary-600 */
+  box-shadow: 0 2px 8px -1px rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  font-weight: 600;
+}
+
+.dark .nav-links-container a.active-nav-link {
+  background-color: rgb(31, 41, 55); /* gray-800 */
+  color: rgb(129, 140, 248) !important; /* primary-400 */
+}
+
+.nav-links-container a span {
+  font-size: 0.9375rem;
+}
+
+/* Icon styling */
+.nav-links-container a svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke-width: 2px;
+  margin-right: 0.375rem;
+}
+
+.nav-links-container a.active-nav-link svg {
+  color: rgb(79, 70, 229); /* primary-600 */
+  stroke-width: 2.5px;
+}
+
+.dark .nav-links-container a.active-nav-link svg {
+  color: rgb(129, 140, 248); /* primary-400 */
+}
+
+/* Hover effects */
+.nav-links-container a:hover:not(.active-nav-link) {
+  background-color: rgba(243, 244, 246, 0.8); /* gray-100 with opacity */
+  color: rgb(79, 70, 229); /* primary-600 */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dark .nav-links-container a:hover:not(.active-nav-link) {
+  background-color: rgba(55, 65, 81, 0.5); /* lighter for better contrast */
+  color: rgb(165, 180, 252); /* lighter purple for better visibility */
+}
+
+/* Active indicator line */
+.active-indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: linear-gradient(to right, rgb(99, 102, 241), rgb(14, 165, 233));
+  border-radius: 9999px;
+  opacity: 1;
+  box-shadow: 0 1px 2px rgba(99, 102, 241, 0.3);
+}

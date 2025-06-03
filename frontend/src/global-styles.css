@@ -1,0 +1,43 @@
+/* Global fixes for bullet points in navigation */
+
+/* Remove list styling from all navigation links */
+a, a:before {
+  list-style-type: none !important;
+  list-style-image: none !important;
+  -webkit-padding-start: 0 !important;
+  padding-inline-start: 0 !important;
+}
+
+/* Specifically target the navigation items at the top */
+.news-link, .sources-link, .broadcast-link, 
+[href="/summaries"], [href="/manage-feeds"], [href="/news-broadcast"] {
+  list-style: none !important;
+  list-style-type: none !important;
+  text-decoration: none;
+  display: inline-block;
+  margin-left: 0;
+  padding-left: 0;
+}
+
+/* Reset list item markers */
+li::marker {
+  content: "" !important;
+  display: none !important;
+}
+
+/* Fix all unordered lists to not show bullets */
+ul {
+  list-style-type: none !important;
+  padding-left: 0;
+}
+
+/* Remove all pseudo-elements that might be creating bullets */
+*::before {
+  content: none !important;
+}
+
+/* Aggressive reset for any bullet-like styling */
+a img, a span, li img, li span {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}

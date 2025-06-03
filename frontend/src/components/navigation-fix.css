@@ -1,0 +1,52 @@
+/* Global reset for bullets */
+body {
+  list-style-type: none;
+}
+
+/* Target the navigation elements directly */
+.objective-nav a::before,
+.objective-nav a::after,
+a::before,
+a::after {
+  content: none !important;
+  display: none !important;
+}
+
+.nav-links-container,
+.nav-links-container * {
+  list-style: none !important;
+  list-style-type: none !important;
+  -webkit-padding-start: 0 !important;
+  padding-inline-start: 0 !important;
+}
+
+/* Target all links and remove any list markers */
+a {
+  list-style: none !important;
+  list-style-type: none !important;
+  text-decoration: none;
+}
+
+/* Target all list items in navigation */
+.objective-nav nav a {
+  display: inline-block !important;
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Reset any global list styles */
+ul, li {
+  list-style-position: inside;
+  list-style-image: none !important;
+}
+
+/* Target the specific header navigation */
+header nav a::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Override any ::before pseudo-elements that might be adding bullets */
+*::before {
+  content: none !important;
+}

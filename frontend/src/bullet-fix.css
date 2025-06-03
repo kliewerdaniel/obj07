@@ -1,0 +1,36 @@
+/* Global style reset to remove bullets */
+* {
+  list-style-type: none !important;
+}
+
+/* Reset list styles */
+ul, ol, li {
+  list-style: none !important;
+  list-style-type: none !important;
+  -webkit-padding-start: 0;
+  padding-inline-start: 0;
+}
+
+/* Target navigation items and all links */
+a, nav a, a::before, a::marker {
+  list-style: none !important;
+  list-style-type: none !important;
+  text-decoration: none;
+}
+
+/* Completely disable ::before and ::marker pseudo-elements */
+::before, ::marker, ::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Override bullets for specific elements */
+.nav-links-container a,
+.news-link, 
+.sources-link,
+.broadcast-link {
+  display: inline-block;
+  margin-left: 0;
+  padding-left: 0;
+  background-image: none !important;
+}
