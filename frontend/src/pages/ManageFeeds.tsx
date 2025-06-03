@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Trash2, Globe2, RssIcon, AlertCircle, CheckCircle, Loader2, Grid3X3, Filter, ExternalLink, X, Settings, TrendingUp } from 'lucide-react';
+import { Plus, Trash2, Globe2, RssIcon, AlertCircle, CheckCircle, Loader2, Grid3X3, Filter, ExternalLink, X, Settings, TrendingUp, Play, FileText } from 'lucide-react';
+import LogViewer from '../components/LogViewer';
 
 interface FeedSource {
   name: string;
@@ -19,6 +20,8 @@ const ManageFeeds: React.FC = () => {
   const [addingFeed, setAddingFeed] = useState(false);
   const [deletingFeed, setDeletingFeed] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showLogViewer, setShowLogViewer] = useState(false);
+  const [isRunningPipeline, setIsRunningPipeline] = useState(false);
   const [newFeed, setNewFeed] = useState<FeedSource>({
     name: '',
     type: 'rss',
@@ -40,6 +43,33 @@ const ManageFeeds: React.FC = () => {
   const clearMessages = () => {
     setError(null);
     setSuccess(null);
+  };
+  
+  const runPipeline = async () => {
+    clearMessages();
+    setIsRunningPipeline(true);
+    setShowLogViewer(true);
+    
+    try {
+      const response = await fetch('/api/run_pipeline');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      if (result.status === 'success') {
+        setSuccess('Pipeline executed successfully!');
+      } else {
+        setError(`Pipeline execution failed: ${result.message}`);
+      }
+    } catch (err: any) {
+      setError(`Failed to run pipeline: ${err.message}`);
+    } finally {
+      setIsRunningPipeline(false);
+      setTimeout(() => setSuccess(null), 5000);
+    }
   };
 
   const handleAddFeed = async () => {
@@ -169,13 +199,45 @@ const ManageFeeds: React.FC = () => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="group inline-flex items-center gap-3 px-8 py-4 bg-white text-blue-600 hover:text-blue-700 font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:-translate-y-1 active:translate-y-0 hover:scale-105"
-            >
-              <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-              Add News Source
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setShowAddForm(true)}
+                className="group inline-flex items-center gap-3 px-6 py-4 bg-white text-blue-600 hover:text-blue-700 font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:-translate-y-1 active:translate-y-0"
+              >
+                <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
+                Add News Source
+              </button>
+              
+              <button
+                onClick={runPipeline}
+                disabled={isRunningPipeline}
+                className={`group inline-flex items-center gap-3 px-6 py-4 font-semibold rounded-2xl shadow-xl hover:shadow-2xl transform transition-all duration-300 hover:-translate-y-1 active:translate-y-0 ${
+                  isRunningPipeline 
+                    ? 'bg-blue-100 text-blue-400 cursor-not-allowed' 
+                    : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                }`}
+              >
+                {isRunningPipeline ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Running Pipeline...
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                    Run Pipeline
+                  </>
+                )}
+              </button>
+              
+              <button
+                onClick={() => setShowLogViewer(true)}
+                className="group inline-flex items-center gap-3 px-6 py-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 font-semibold rounded-2xl shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 active:translate-y-0"
+              >
+                <FileText className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+                View Logs
+              </button>
+            </div>
             
             <div className="flex items-center gap-2 text-white/80 text-sm">
               <TrendingUp className="w-4 h-4" />
@@ -335,6 +397,15 @@ const ManageFeeds: React.FC = () => {
         </div>
       </div>
 
+      {/* Log Viewer Component */}
+      <LogViewer 
+        isVisible={showLogViewer} 
+        onClose={() => setShowLogViewer(false)}
+        autoRefresh={true}
+        refreshInterval={1000}
+        maxLogs={200}
+      />
+      
       {/* Enhanced Add Feed Modal */}
       {showAddForm && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
@@ -530,7 +601,7 @@ const ManageFeeds: React.FC = () => {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInUp {
           from {
             opacity: 0;

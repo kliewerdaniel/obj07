@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from api.graph import router as graph_router
+from api.logs import router as logs_router
 
 # Import necessary modules for the pipeline
 import os
@@ -38,6 +39,7 @@ app.include_router(broadcast.router, prefix="/api")
 
 # Include the router mounted at /api/graph
 app.include_router(graph_router, prefix="/api/graph")
+app.include_router(logs_router, prefix="/api/logs")
 
 # Serve static files (e.g. your graph.html page)
 app.mount("/static", StaticFiles(directory="static"), name="static")

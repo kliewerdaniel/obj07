@@ -14,7 +14,7 @@ def run_pipeline():
     
     # Step 1: Scrape
     print("📰 Scraping articles...")
-    articles = fetch_articles(max_articles=10) # Increase max_articles to fetch more stories
+    articles = fetch_articles(max_articles=1) # Increase max_articles to fetch more stories
     
     # Step 2: Process each article
     results = []
